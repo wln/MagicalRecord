@@ -56,7 +56,7 @@ void cleanup_save_queue()
         localContext = [NSManagedObjectContext contextThatNotifiesDefaultContextOnMainThreadWithCoordinator:localCoordinator];
 #else
         localContext = [NSManagedObjectContext MR_contextThatNotifiesDefaultContextOnMainThread];
-        IF_IOS5_OR_GREATER(
+        USE_CONTEXT_PRIVATE_QUEUES(
         [localContext MR_observeiCloudChangesInCoordinator:defaultCoordinator];
         );
 #endif
@@ -73,7 +73,7 @@ void cleanup_save_queue()
     }
     
     localContext.MR_notifiesMainContextOnSave = NO;
-    IF_IOS5_OR_GREATER(
+    USE_CONTEXT_PRIVATE_QUEUES(
     [localContext MR_stopObservingiCloudChangesInCoordinator:defaultCoordinator];
     );
     [mainContext setMergePolicy:NSMergeByPropertyObjectTrumpMergePolicy];

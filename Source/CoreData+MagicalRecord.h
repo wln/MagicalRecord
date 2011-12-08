@@ -41,16 +41,16 @@
 #endif
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 50000
-#define IF_IOS5_OR_GREATER(...) \
+#define USE_CONTEXT_PRIVATE_QUEUES(...) \
 if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iPhoneOS_5_0) \
 { \
 __VA_ARGS__ \
 }
 #else
-#define IF_IOS5_OR_GREATER(...)
+#define USE_CONTEXT_PRIVATE_QUEUES(...)
 #endif
 
-#define IF_PRE_IOS5(...)  \
+#define USE_THREAD_ISOLATION(...)  \
 if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iPhoneOS_5_0)  \
 { \
 __VA_ARGS__ \

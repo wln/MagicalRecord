@@ -32,18 +32,21 @@ NSString * const kMagicalRecordDidMergeChangesFromiCloudNotification = @"kMagica
 + (void) MR_setDefaultContext:(NSManagedObjectContext *)moc
 {
     NSPersistentStoreCoordinator *coordinator = [NSPersistentStoreCoordinator MR_defaultStoreCoordinator];
-    IF_IOS5_OR_GREATER(
-    [defaultManageObjectContext_ MR_stopObservingiCloudChangesInCoordinator:coordinator];
-    );
+
+    if ([MagicalRecordHelpers isICloudEnabled])
+    {
+        [defaultManageObjectContext_ MR_stopObservingiCloudChangesInCoordinator:coordinator];   
+    }
     
     MR_RETAIN(moc);
     MR_RELEASE(defaultManageObjectContext_);
 
     defaultManageObjectContext_ = moc;
     
-    IF_IOS5_OR_GREATER(
-    [defaultManageObjectContext_ MR_observeiCloudChangesInCoordinator:coordinator];
-    );
+    if ([MagicalRecordHelpers isICloudEnabled]) 
+    {
+        [defaultManageObjectContext_ MR_observeiCloudChangesInCoordinator:coordinator];
+    }
 }
 
 + (void)MR_resetDefaultContext
@@ -264,16 +267,16 @@ NSString * const kMagicalRecordDidMergeChangesFromiCloudNotification = @"kMagica
     if (coordinator != nil)
 	{
         MRLog(@"Creating MOContext %@", [NSThread isMainThread] ? @" *** On Main Thread ***" : @"");
-        IF_IOS5_OR_GREATER ( 
-        context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-        [context performBlockAndWait:^{
-            [context setPersistentStoreCoordinator:coordinator];
-        }];
+        USE_CONTEXT_PRIVATE_QUEUES ( 
+            context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+            [context performBlockAndWait:^{
+                [context setPersistentStoreCoordinator:coordinator];
+            }];
         );
 
-        IF_PRE_IOS5(
-        context = [[NSManagedObjectContext alloc] init];
-        [context setPersistentStoreCoordinator:coordinator];
+        USE_THREAD_ISOLATION(
+            context = [[NSManagedObjectContext alloc] init];
+            [context setPersistentStoreCoordinator:coordinator];
         );
         
         MR_AUTORELEASE(context);
